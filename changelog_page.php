@@ -158,9 +158,17 @@ function print_version_footer( $p_version_id, $p_issues_resolved ) {
  * @param string $p_project_name Project name to display.
  * @return void
  */
-function print_project_header_changelog( $p_project_name ) {
+function print_project_header_changelog( $p_project_name, $p_project_id, $p_obsolete) {
 	echo '<div class="page-header">';
-	echo '<h1><strong>' . string_display_line( $p_project_name ), '</strong> - ', lang_get( 'changelog' ) . '</h1>';
+	echo '<h1><strong>' . string_display_line( $p_project_name ), '</strong> - ', lang_get( 'changelog' );
+	echo '<a class="pull-right btn btn-xs btn-primary btn-white btn-round"';
+	echo 'href="changelog_page.php?project_id=' . $p_project_id;
+	if(! $p_obsolete) {
+	   echo '&obsolete=y">Show obsolete</a>';
+	} else {
+	    echo '">Hide obsolete</a>';
+	}
+	echo '</h1>';
 	echo '</div>';
 }
 
@@ -209,6 +217,8 @@ if( is_blank( $f_version ) ) {
 	}
 }
 
+$f_obsolete = gpc_get_string('obsolete', 'n') == 'y';
+
 if( ALL_PROJECTS == $t_project_id ) {
 	$t_project_ids_to_check = user_get_all_accessible_projects( $t_user_id, ALL_PROJECTS );
 	$t_project_ids = array();
@@ -245,7 +255,7 @@ foreach( $t_project_ids as $t_project_id ) {
 	$t_resolved = config_get( 'bug_resolved_status_threshold' );
 
 	# grab versions info for later use, excluding obsolete ones
-	$t_version_rows = version_get_all_rows( $t_project_id, VERSION_ALL, false );
+	$t_version_rows = version_get_all_rows( $t_project_id, VERSION_ALL, $f_obsolete );
 
 	# cache category info, but ignore the results for now
 	category_get_all_rows( $t_project_id );
@@ -326,7 +336,7 @@ foreach( $t_project_ids as $t_project_id ) {
 
 		if( $t_issues_resolved > 0 ) {
 			if( !$t_project_header_printed ) {
-				print_project_header_changelog( $t_project_name );
+				print_project_header_changelog( $t_project_name, $t_project_id, $f_obsolete );
 				$t_project_header_printed = true;
 			}
 
