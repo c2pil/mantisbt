@@ -181,6 +181,8 @@ if( is_blank( $f_project ) ) {
 
 $f_version = gpc_get_string( 'version', '' );
 
+$t_obsolete = gpc_get_string( 'obsolete', 'n' ) == 'y';
+
 if( is_blank( $f_version ) ) {
 	$f_version_id = gpc_get_int( 'version_id', -1 );
 
@@ -231,6 +233,52 @@ layout_page_header( lang_get( 'changelog' ) );
 
 layout_page_begin( __FILE__ );
 
+?> 
+<div class="col-md-12 col-xs-12">
+    <div class="filter-box">
+        <div id="filter" class="widget-box widget-color-blue2">
+            <div class="widget-header widget-header-small">
+                <h4 class="widget-title lighter">
+                    <i class="ace-icon fa fa-filter"></i>
+				    <?php echo lang_get( 'filters' ) ?>
+			     </h4>
+             </div>
+             <div class="widget-body">
+                <div class="widget-main no-padding">
+                    <div class="table-responsive">
+                    <form name="changelog_filter" method="get" action="changelog_parameter.php">
+                        <table class="table table-bordered table-condensed2 filters">
+                            <tbody>
+                                <tr>
+                                    <td class="small-caption category">
+                                        Obsolete versions
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="small-caption">
+                                        <select class="input-xs" name="obsolete">
+                                            <option value="n">Hide</option>
+                                            <option value="y">Show</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="widget-toolbox padding-8 clearfix">
+                <div class="btn-toolbar pull-left">
+                    <div class="form-inline">
+                        <input type="submit" class="btn btn-primary btn-sm btn-white btn-round no-float" name="filter_submit" value="<?php echo lang_get( 'filter_button' )?>" />
+                    </div>
+                </div>
+            </div>
+                    </form>
+                    </div>
+                </div>
+             </div>
+         </div>
+     </div>
+ </div>
+<?php 
 echo '<div class="col-md-12 col-xs-12">';
 
 $t_project_index = 0;
@@ -245,7 +293,7 @@ foreach( $t_project_ids as $t_project_id ) {
 	$t_resolved = config_get( 'bug_resolved_status_threshold' );
 
 	# grab versions info for later use, excluding obsolete ones
-	$t_version_rows = version_get_all_rows( $t_project_id, VERSION_ALL, false );
+	$t_version_rows = version_get_all_rows( $t_project_id, VERSION_ALL, $t_obsolete );
 
 	# cache category info, but ignore the results for now
 	category_get_all_rows( $t_project_id );
